@@ -1,37 +1,20 @@
 var express = require('express');
-var mongodb = require('mongodb').MongoClient;
 var bookRouter = express.Router();
+var mongodb = require('mongodb').MongoClient;
+var objectId = require('mongodb').ObjectID;
 
+var router = function (nav) {
+    var bookService =
+        require('../services/goodreadsService')();
+    var bookController =
+        require('../controllers/bookController')(bookService, nav);
+    bookRouter.use(bookController.middleware);
+    bookRouter.route('/')
+        .get(bookController.getIndex);
 
-var router = function(nav) {
+    bookRouter.route('/:id')
+        .get(bookController.getById);
 
-        bookRouter.route('/')
-            .get(function(req, res) {
-                    var url =
-                        'mongodb://admin:password@ds149431.mlab.com:49431/library-app';
-                    mongodb.connect(url, function(err, db) {
-
-                        }
-
-                        res.render('bookListView', {
-                            title: 'Books',
-                            nav: nav,
-                            books: books
-
-                        });
-                    });
-
-                bookRouter.route('/:id')
-                .get(function(req, res) {
-                    var id = req.params.id;
-                    res.render('bookView', {
-                        title: 'Books',
-                        nav: nav,
-                        book: books[id]
-
-                    });
-                });
-                return bookRouter;
-            };
-
-        module.exports = router;
+    return bookRouter;
+};
+module.exports = router;
